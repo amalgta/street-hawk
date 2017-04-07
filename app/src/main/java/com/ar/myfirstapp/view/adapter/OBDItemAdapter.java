@@ -42,7 +42,6 @@ public class OBDItemAdapter extends RecyclerView.Adapter<OBDItemAdapter.ViewHold
         int key = Integer.parseInt(command.getPid(), 16);
         commands.put(key, command);
         if (keyList.contains(key)) {
-            //notifyItemChanged(keyList.indexOf(key));
         } else {
             keyList = new ArrayList<>(commands.keySet());
             notifyItemInserted(keyList.indexOf(key));
@@ -63,7 +62,6 @@ public class OBDItemAdapter extends RecyclerView.Adapter<OBDItemAdapter.ViewHold
         holder.itemView.setOnTouchListener(new RepeatListener(0, Constants.ELMTimeDelay, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //  notifyItemChanged(holder.getAdapterPosition());
                 DeviceManager.getInstance().send(command, new RequestResponseListener() {
                     @Override
                     public void onResponseReceived(Command command) {

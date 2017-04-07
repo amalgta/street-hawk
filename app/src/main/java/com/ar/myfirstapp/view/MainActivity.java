@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -123,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements DeviceResponseHan
 
             @Override
             public void onPageSelected(int position) {
-                textViewTitle.setText(FragmentFactory.getTitle()[position % FragmentFactory.getLength()]);
+                textViewTitle.setText(FragmentFactory.getTitle()[position]);
             }
 
             @Override
@@ -263,13 +262,14 @@ public class MainActivity extends AppCompatActivity implements DeviceResponseHan
 
         @Override
         public Fragment getItem(int position) {
+            position = InfiniteViewPager.toRealPosition(position, getCount());
             BaseFragment fragment;
-            if (position % FragmentFactory.getLength() == 0) {
+            if (position == FragmentFactory.getLastIndex()) {
                 fragment = new LogFragment();
             } else {
                 fragment = new OBDFragment();
                 Bundle bundle = new Bundle();
-                bundle.putInt("position", position % FragmentFactory.getLastIndex());
+                bundle.putInt("position", position);
                 fragment.setArguments(bundle);
             }
             return fragment;
