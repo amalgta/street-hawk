@@ -33,9 +33,9 @@ public class OBDFragment extends BaseFragment {
     }
 
     @Override
-    protected void updateData(int index, int pId) {
-        if (index != position) return;
-        obdItemAdapter.add(((MainActivity) getActivity()).getCommands(position).get(pId));
+    protected void updateData(int[] commandCode) {
+        if (commandCode[0] != position) return;
+        obdItemAdapter.add(((MainActivity) getActivity()).getCommands(position).get(commandCode[1]));
     }
 
     @Override
@@ -47,7 +47,7 @@ public class OBDFragment extends BaseFragment {
     @Override
     protected void loadData() {
         Map<Integer, Command> commands = ((MainActivity) getActivity()).getCommands(position);
-        obdItemAdapter = new OBDItemAdapter(commands);
+        obdItemAdapter = new OBDItemAdapter(commands, getContext());
         recyclerView.setAdapter(obdItemAdapter);
     }
 

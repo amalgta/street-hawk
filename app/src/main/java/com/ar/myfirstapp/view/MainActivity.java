@@ -32,6 +32,7 @@ import com.ar.myfirstapp.utils.Utils;
 import com.ar.myfirstapp.view.custom.infinteviewpager.CircleIndicator;
 import com.ar.myfirstapp.view.custom.infinteviewpager.InfiniteViewPager;
 import com.ar.myfirstapp.view.fragments.BaseFragment;
+import com.ar.myfirstapp.view.fragments.DashFragment;
 import com.ar.myfirstapp.view.fragments.FragmentFactory;
 import com.ar.myfirstapp.view.fragments.LogFragment;
 import com.ar.myfirstapp.view.fragments.OBDFragment;
@@ -48,12 +49,15 @@ public class MainActivity extends AppCompatActivity implements DeviceResponseHan
     private static final String TAG = "MainActivity";
 
     private DeviceManager deviceManager;
-    public DeviceResponseHandler deviceResponseHandler = new DeviceResponseHandler();
 
     private InfiniteViewPager viewPager;
     private Button buttonConnect;
     private TextView textViewTitle;
     private CircleIndicator circleIndicator;
+
+    public DeviceManager getDeviceManager() {
+        return deviceManager;
+    }
 
     private Map<Integer, Command>[] fragmentData = new TreeMap[FragmentFactory.getLastIndex()];
     private List<Command> commandLog = new LinkedList<>();
@@ -97,8 +101,7 @@ public class MainActivity extends AppCompatActivity implements DeviceResponseHan
 
         if (deviceManager == null) {
             deviceManager = DeviceManager.getInstance();
-            deviceResponseHandler.setDeviceResponseListener(this);
-            deviceManager.setHandler(deviceResponseHandler);
+            deviceManager.addResponseHandler(new DeviceResponseHandler(this));
             deviceManager.initialize();
             startConnection();
         }
@@ -188,6 +191,10 @@ public class MainActivity extends AppCompatActivity implements DeviceResponseHan
         return fragmentData[index];
     }
 
+    public Map<Integer, Command>[] getCommands() {
+        return fragmentData;
+    }
+
     public List<Command> getCommandLog() {
         return commandLog;
     }
@@ -264,7 +271,9 @@ public class MainActivity extends AppCompatActivity implements DeviceResponseHan
         public Fragment getItem(int position) {
             position = InfiniteViewPager.toRealPosition(position, getCount());
             BaseFragment fragment;
-            if (position == FragmentFactory.getLastIndex()) {
+            if (position == 0) {
+                fragment = new DashFragment();
+            } else if (position == FragmentFactory.getLastIndex()) {
                 fragment = new LogFragment();
             } else {
                 fragment = new OBDFragment();

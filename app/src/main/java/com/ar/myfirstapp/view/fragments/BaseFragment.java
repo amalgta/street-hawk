@@ -7,7 +7,9 @@ import android.content.IntentFilter;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
+import com.ar.myfirstapp.bt.DeviceManager;
 import com.ar.myfirstapp.utils.Constants;
+import com.ar.myfirstapp.view.MainActivity;
 
 
 /**
@@ -31,7 +33,7 @@ public abstract class BaseFragment extends Fragment {
 
     protected abstract void loadData();
 
-    protected abstract void updateData(int index, int pId);
+    protected abstract void updateData(int[] commandCode);
 
     protected BroadcastReceiver dataUpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -40,7 +42,7 @@ public abstract class BaseFragment extends Fragment {
                 int index = intent.getIntExtra(Constants.TAG_NOTIFICATION_COMMAND_INDEX, -1);
                 int pId = intent.getIntExtra(Constants.TAG_NOTIFICATION_COMMAND_PID, -1);
                 if (index != -1 && pId != -1)
-                    updateData(index, pId);
+                    updateData(new int[]{index, pId});
             }
         }
     };

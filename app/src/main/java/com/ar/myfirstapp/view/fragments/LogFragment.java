@@ -54,9 +54,9 @@ public class LogFragment extends BaseFragment {
     }
 
     @Override
-    protected void updateData(int mode, int pId) {
+    protected void updateData(int[] commandCode) {
         List<Command> commands = ((MainActivity) getActivity()).getCommandLog();
-        textViewLog.append(commands.get(commands.size()-1).toString());
+        textViewLog.append(commands.get(commands.size() - 1).toString());
     }
 
     private void initUI() {

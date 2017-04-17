@@ -26,7 +26,7 @@ public class DeviceResponseHandler extends Handler {
 
     private DeviceResponseListener deviceResponseListener;
 
-    public void setDeviceResponseListener(DeviceResponseListener deviceResponseListener) {
+    public DeviceResponseHandler(DeviceResponseListener deviceResponseListener) {
         this.deviceResponseListener = deviceResponseListener;
     }
 

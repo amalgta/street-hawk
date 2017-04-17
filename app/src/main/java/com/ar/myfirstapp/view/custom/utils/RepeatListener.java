@@ -1,4 +1,4 @@
-package com.ar.myfirstapp.view.custom;
+package com.ar.myfirstapp.view.custom.utils;
 
 import android.os.Handler;
 import android.view.MotionEvent;

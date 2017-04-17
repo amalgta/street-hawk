@@ -16,6 +16,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
@@ -31,12 +33,16 @@ public class DeviceManager {
     private static final String TAG = "DeviceManager";
 
     private final BluetoothAdapter bluetoothAdapter;
-    private Handler handler;
+    private List<Handler> responseHandlers = new LinkedList<>();
     private ConnectThread connectThread;
     private ConnectedThread connectedThread;
     private int currentState, newState;
 
     public static final String SPP_UUID = "00001101-0000-1000-8000-00805F9B34FB";
+
+    public void clearQueue() {
+        inQ.clear();
+    }
 
 
     public static final class BLUETOOTH_STATE {
@@ -73,10 +79,17 @@ public class DeviceManager {
     }
 
     /**
-     * @param handler A Handler to send messages back to the UI Activity
+     * @param handler Add a Handler to send messages back to the UI Activity
      */
-    public void setHandler(Handler handler) {
-        this.handler = handler;
+    public void addResponseHandler(Handler handler) {
+        responseHandlers.add(handler);
+    }
+
+    /**
+     * @param handler Add a Handler to send messages back to the UI Activity
+     */
+    public void removeResponseHandler(Handler handler) {
+        responseHandlers.remove(handler);
     }
 
     /**
@@ -89,7 +102,7 @@ public class DeviceManager {
     /**
      * Return the state of active connection
      */
-    private synchronized int getCurrentState() {
+    public synchronized int getCurrentState() {
         return currentState;
     }
 
@@ -103,7 +116,8 @@ public class DeviceManager {
             Log.d(TAG, "#onStateChange() " + newState + " -> " + currentState);
 
         newState = currentState;
-        handler.obtainMessage(MESSAGE_TYPE.STATE_CHANGE, newState, -1).sendToTarget();
+        for (Handler handler : responseHandlers)
+            handler.obtainMessage(MESSAGE_TYPE.STATE_CHANGE, newState, -1).sendToTarget();
     }
 
 
@@ -125,8 +139,8 @@ public class DeviceManager {
             connectedThread = null;
         }
 
-        if (handler == null) {
-            Logger.e(TAG, "#initialize() -> Handler not set before initialize()");
+        if (responseHandlers.isEmpty()) {
+            Logger.e(TAG, "#initialize() -> No handler set before initialize()");
             return;
         }
 
@@ -250,13 +264,14 @@ public class DeviceManager {
         connectedThread = new ConnectedThread(socket);
         connectedThread.start();
 
-        // Send the name of the connected device back to the UI Activity
-        Message msg = handler.obtainMessage(MESSAGE_TYPE.DEVICE_NAME);
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.TAG_DEVICE_NAME, device.getName());
-        msg.setData(bundle);
-        handler.sendMessage(msg);
-
+        for (Handler handler : responseHandlers) {
+            // Send the name of the connected device back to the UI Activity
+            Message msg = handler.obtainMessage(MESSAGE_TYPE.DEVICE_NAME);
+            Bundle bundle = new Bundle();
+            bundle.putString(Constants.TAG_DEVICE_NAME, device.getName());
+            msg.setData(bundle);
+            handler.sendMessage(msg);
+        }
         onStateChange();
     }
 
@@ -350,6 +365,7 @@ public class DeviceManager {
         }
 
         currentState = BLUETOOTH_STATE.NONE;
+        inQ.clear();
         // Update UI title
         onStateChange();
     }
@@ -359,13 +375,14 @@ public class DeviceManager {
      * Indicate that the connection attempt failed and notify the UI Activity.
      */
     private void connectionFailed() {
-        // Send a failure message back to the Activity
-        Message msg = handler.obtainMessage(MESSAGE_TYPE.NOTIFICATION);
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.TAG_TOAST, "Unable to connect device");
-        msg.setData(bundle);
-        handler.sendMessage(msg);
-
+        for (Handler handler : responseHandlers) {
+            // Send a failure message back to the Activity
+            Message msg = handler.obtainMessage(MESSAGE_TYPE.NOTIFICATION);
+            Bundle bundle = new Bundle();
+            bundle.putString(Constants.TAG_TOAST, "Unable to connect device");
+            msg.setData(bundle);
+            handler.sendMessage(msg);
+        }
         currentState = BLUETOOTH_STATE.NONE;
         // Update UI title
         onStateChange();
@@ -378,13 +395,14 @@ public class DeviceManager {
      * Indicate that the connection was lost and notify the UI Activity.
      */
     private void connectionLost() {
-        // Send a failure message back to the Activity
-        Message msg = handler.obtainMessage(MESSAGE_TYPE.NOTIFICATION);
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.TAG_TOAST, "Device connection was lost");
-        msg.setData(bundle);
-        handler.sendMessage(msg);
-
+        for (Handler handler : responseHandlers) {
+            // Send a failure message back to the Activity
+            Message msg = handler.obtainMessage(MESSAGE_TYPE.NOTIFICATION);
+            Bundle bundle = new Bundle();
+            bundle.putString(Constants.TAG_TOAST, "Device connection was lost");
+            msg.setData(bundle);
+            handler.sendMessage(msg);
+        }
         currentState = BLUETOOTH_STATE.NONE;
         // Update UI title
         onStateChange();
@@ -454,7 +472,8 @@ public class DeviceManager {
 
             private Command sendRequestForResponse(Command command) throws IOException {
                 writeOs(command.getRequest());
-                handler.obtainMessage(MESSAGE_TYPE.WRITE, -1, -1, command).sendToTarget();
+                for (Handler handler : responseHandlers)
+                    handler.obtainMessage(MESSAGE_TYPE.WRITE, -1, -1, command).sendToTarget();
                 Logger.d(TAG, "Request Sent :" + command.toString());
 
                 int avail = is.available();
@@ -529,7 +548,9 @@ public class DeviceManager {
                         connectionLost();
                     } finally {
                         commandParcel.setCommand(command);
-                        handler.obtainMessage(MESSAGE_TYPE.READ, -1, -1, commandParcel).sendToTarget();
+                        for (Handler handler : responseHandlers) {
+                            handler.obtainMessage(MESSAGE_TYPE.READ, -1, -1, commandParcel).sendToTarget();
+                        }
                     }
                     Log.d(TAG, "Response Received : " + command.toString());
 

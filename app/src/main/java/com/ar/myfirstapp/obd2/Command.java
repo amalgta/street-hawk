@@ -1,10 +1,13 @@
 package com.ar.myfirstapp.obd2;
 
+import android.util.Pair;
+
 import com.ar.myfirstapp.obd2.parser.Parser;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.sql.CommonDataSource;
@@ -145,6 +148,15 @@ public class Command {
     public int hashCode() {
         int result = commandId.hashCode();
         result = 31 * result + id.hashCode();
+        return result;
+    }
+
+    public int[] getUniqueReference() {
+        int index = (Integer.parseInt(getCommandId(), 16)) - 1;
+        int pId = Integer.parseInt(getPid(), 16);
+        int[] result = new int[2];
+        result[0] = index;
+        result[1] = pId;
         return result;
     }
 }

@@ -1,18 +1,18 @@
 package com.ar.myfirstapp.view.adapter;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.ar.myfirstapp.R;
-import com.ar.myfirstapp.bt.DeviceManager;
-import com.ar.myfirstapp.bt.RequestResponseListener;
 import com.ar.myfirstapp.obd2.Command;
-import com.ar.myfirstapp.utils.Constants;
-import com.ar.myfirstapp.view.custom.RepeatListener;
+import com.ar.myfirstapp.utils.DataStorage;
+import com.ar.myfirstapp.utils.DashUtils;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -26,8 +26,9 @@ import java.util.Map;
 public class OBDItemAdapter extends RecyclerView.Adapter<OBDItemAdapter.ViewHolder> {
     private Map<Integer, Command> commands;
     private List<Integer> keyList;
+    private Context context;
 
-    public OBDItemAdapter(Map<Integer, Command> commands) {
+    public OBDItemAdapter(Map<Integer, Command> commands, Context context) {
         if (commands != null) {
             this.commands = commands;
             this.keyList = new ArrayList<>(commands.keySet());
@@ -35,6 +36,7 @@ public class OBDItemAdapter extends RecyclerView.Adapter<OBDItemAdapter.ViewHold
             this.commands = new TreeMap<>();
             this.keyList = new ArrayList<>();
         }
+        this.context = context;
     }
 
 
@@ -59,6 +61,14 @@ public class OBDItemAdapter extends RecyclerView.Adapter<OBDItemAdapter.ViewHold
         final Command command = commands.get(keyList.get(position));
         holder.textViewOBDKey.setText(command.getName());
         holder.textViewOBDValue.setText(command.toString());
+        holder.checkboxIsInDash.setChecked(DashUtils.isInDash(command, context));
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                holder.checkboxIsInDash.setChecked(!holder.checkboxIsInDash.isChecked());
+            }
+        });
+        /*
         holder.itemView.setOnTouchListener(new RepeatListener(0, Constants.ELMTimeDelay, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,10 +79,21 @@ public class OBDItemAdapter extends RecyclerView.Adapter<OBDItemAdapter.ViewHold
                         holder.textViewOBDValue.setText(command.toString());
                     }
                 });
-
             }
         }));
+        */
+        holder.checkboxIsInDash.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    DashUtils.addToDash(command, context);
+                } else {
+                    DashUtils.removeFromDash(command, context);
+                }
+            }
+        });
     }
+
 
     @Override
     public int getItemCount() {
@@ -82,11 +103,13 @@ public class OBDItemAdapter extends RecyclerView.Adapter<OBDItemAdapter.ViewHold
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewOBDKey;
         TextView textViewOBDValue;
+        CheckBox checkboxIsInDash;
 
         ViewHolder(View itemView) {
             super(itemView);
             textViewOBDKey = (TextView) itemView.findViewById(R.id.textViewOBDKey);
             textViewOBDValue = (TextView) itemView.findViewById(R.id.textViewOBDValue);
+            checkboxIsInDash = (CheckBox) itemView.findViewById(R.id.checkboxIsInDash);
         }
     }
 
