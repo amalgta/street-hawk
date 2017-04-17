@@ -26,6 +26,7 @@ import com.ar.myfirstapp.utils.Logger;
 import com.ar.myfirstapp.view.MainActivity;
 import com.ar.myfirstapp.view.adapter.DashItemAdapter;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -40,7 +41,6 @@ public class DashFragment extends BaseFragment {
     Switch switchListen;
     WorkerThread workerThread;
     public DeviceResponseHandler deviceResponseHandler;
-
 
     private BroadcastReceiver dashUpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -60,11 +60,11 @@ public class DashFragment extends BaseFragment {
     };
 
     private void removeFromDash(int[] commandCode) {
-        dashItemAdapter.add(commandCode);
+        dashItemAdapter.add(((MainActivity) getActivity()).getCommands()[commandCode[0]].get(commandCode[1]));
     }
 
     private void addToDash(int[] commandCode) {
-        dashItemAdapter.remove(commandCode);
+        dashItemAdapter.remove((((MainActivity) getActivity()).getCommands()[commandCode[0]].get(commandCode[1])));
     }
 
     @Override
@@ -82,7 +82,11 @@ public class DashFragment extends BaseFragment {
 
     @Override
     protected void loadData() {
-        dashItemAdapter = new DashItemAdapter(DashUtils.getAll(new DataStorage(getContext())), getContext());
+        List<Command> commands = new LinkedList<>();
+        for (int[] commandCode : DashUtils.getAll(new DataStorage(getContext()))) {
+            commands.add((((MainActivity) getActivity()).getCommands()[commandCode[0]].get(commandCode[1])));
+        }
+        dashItemAdapter = new DashItemAdapter(commands, getContext());
         recyclerView.setAdapter(dashItemAdapter);
     }
 

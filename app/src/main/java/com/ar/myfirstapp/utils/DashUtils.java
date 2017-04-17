@@ -14,6 +14,16 @@ import java.util.List;
  */
 
 public class DashUtils {
+
+    public static final class WIDGET_TYPE {
+        public static final int TEXT = 1;
+    }
+
+    public static int getDashType(Command command) {
+        //TODO Analyse the command to identify the type of widget
+        return WIDGET_TYPE.TEXT;
+    }
+
     //12,213:12,24:
     public static List<int[]> getAll(DataStorage dataStorage) {
         List<int[]> list = new LinkedList<>();
