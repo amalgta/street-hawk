@@ -70,6 +70,7 @@ public class DashFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        loadData();
         getActivity().registerReceiver(dashUpdateReceiver, new IntentFilter(Constants.TAG_DASH_ADD));
         getActivity().registerReceiver(dashUpdateReceiver, new IntentFilter(Constants.TAG_DASH_REMOVE));
     }
@@ -84,7 +85,9 @@ public class DashFragment extends BaseFragment {
     protected void loadData() {
         List<Command> commands = new LinkedList<>();
         for (int[] commandCode : DashUtils.getAll(new DataStorage(getContext()))) {
-            commands.add((((MainActivity) getActivity()).getCommands()[commandCode[0]].get(commandCode[1])));
+            Map<Integer, Command>[] commandSet = ((MainActivity) getActivity()).getCommands();
+            if (commandSet[commandCode[0]] == null) continue;
+            commands.add((commandSet[commandCode[0]].get(commandCode[1])));
         }
         dashItemAdapter = new DashItemAdapter(commands, getContext());
         recyclerView.setAdapter(dashItemAdapter);
