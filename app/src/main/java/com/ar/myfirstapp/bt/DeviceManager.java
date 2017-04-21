@@ -33,7 +33,7 @@ public class DeviceManager {
     private static final String TAG = "DeviceManager";
 
     private final BluetoothAdapter bluetoothAdapter;
-    private List<Handler> responseHandlers = new LinkedList<>();
+    private final List<Handler> responseHandlers = new LinkedList<>();
     private ConnectThread connectThread;
     private ConnectedThread connectedThread;
     private int currentState, newState;
@@ -82,14 +82,19 @@ public class DeviceManager {
      * @param handler Add a Handler to send messages back to the UI Activity
      */
     public void addResponseHandler(Handler handler) {
-        responseHandlers.add(handler);
+
+        synchronized (responseHandlers) {
+            responseHandlers.add(handler);
+        }
     }
 
     /**
      * @param handler Add a Handler to send messages back to the UI Activity
      */
     public void removeResponseHandler(Handler handler) {
-        responseHandlers.remove(handler);
+        synchronized (responseHandlers) {
+            responseHandlers.remove(handler);
+        }
     }
 
     /**

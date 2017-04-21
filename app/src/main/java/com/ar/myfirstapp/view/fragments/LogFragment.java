@@ -10,16 +10,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.ar.myfirstapp.obd2.saej1979.ModeFactory;
-import com.ar.myfirstapp.view.MainActivity;
 import com.ar.myfirstapp.R;
+import com.ar.myfirstapp.bt.DeviceManager;
 import com.ar.myfirstapp.obd2.Command;
 import com.ar.myfirstapp.obd2.parser.Parser;
-import com.ar.myfirstapp.obd2.saej1979.Mode1;
-import com.ar.myfirstapp.bt.DeviceManager;
+import com.ar.myfirstapp.obd2.saej1979.ModeFactory;
+import com.ar.myfirstapp.view.MainActivity;
 
-import java.util.List;
-import java.util.Map;
+
+import org.apache.commons.collections4.queue.CircularFifoQueue;
+
+import java.util.Queue;
 
 /**
  * Created by amal.george on 24-03-2017
@@ -47,7 +48,7 @@ public class LogFragment extends BaseFragment {
     @Override
     protected void loadData() {
         textViewLog.setText("");
-        List<Command> commands = ((MainActivity) getActivity()).getCommandLog();
+        Queue<Command> commands = ((MainActivity) getActivity()).getCommandLog();
         for (Command command : commands) {
             textViewLog.append(command.toString());
         }
@@ -55,8 +56,15 @@ public class LogFragment extends BaseFragment {
 
     @Override
     protected void updateData(int[] commandCode) {
-        List<Command> commands = ((MainActivity) getActivity()).getCommandLog();
-        textViewLog.append(commands.get(commands.size() - 1).toString());
+        /*
+        Queue<Command> commands = ((MainActivity) getActivity()).getCommandLog();
+        textViewLog.append(((CircularFifoQueue) commands).get(commands.size() - 1).toString());
+        */
+        textViewLog.setText("");
+        Queue<Command> commands = ((MainActivity) getActivity()).getCommandLog();
+        for (Command command : commands) {
+            textViewLog.append(command.toString());
+        }
     }
 
     private void initUI() {

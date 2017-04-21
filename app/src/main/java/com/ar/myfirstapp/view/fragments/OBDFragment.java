@@ -35,7 +35,7 @@ public class OBDFragment extends BaseFragment {
     @Override
     protected void updateData(int[] commandCode) {
         if (commandCode[0] != position) return;
-        obdItemAdapter.add(((MainActivity) getActivity()).getCommands(position).get(commandCode[1]));
+        obdItemAdapter.add(((MainActivity) getActivity()).getCommands(commandCode[0]).get(commandCode[1]));
     }
 
     @Override
@@ -52,7 +52,7 @@ public class OBDFragment extends BaseFragment {
     }
 
     private void initUI() {
-        position = getArguments().getInt("position");
+        position = getArguments().getInt("position") - 1;
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);

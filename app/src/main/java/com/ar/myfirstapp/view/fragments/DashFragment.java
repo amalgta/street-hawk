@@ -60,11 +60,11 @@ public class DashFragment extends BaseFragment {
     };
 
     private void removeFromDash(int[] commandCode) {
-        dashItemAdapter.add(((MainActivity) getActivity()).getCommands()[commandCode[0]].get(commandCode[1]));
+        dashItemAdapter.remove(((MainActivity) getActivity()).getCommands()[commandCode[0]].get(commandCode[1]));
     }
 
     private void addToDash(int[] commandCode) {
-        dashItemAdapter.remove((((MainActivity) getActivity()).getCommands()[commandCode[0]].get(commandCode[1])));
+        dashItemAdapter.add((((MainActivity) getActivity()).getCommands()[commandCode[0]].get(commandCode[1])));
     }
 
     @Override
@@ -95,7 +95,10 @@ public class DashFragment extends BaseFragment {
 
     @Override
     protected void updateData(int[] commandCode) {
-
+        for (int[] thisCommandCode : DashUtils.getAll(new DataStorage(getContext()))) {
+            if (thisCommandCode[0] == commandCode[0] && thisCommandCode[1] == commandCode[1])
+                dashItemAdapter.add(((MainActivity) getActivity()).getCommands(commandCode[0]).get(commandCode[1]));
+        }
     }
 
     @Override
@@ -149,8 +152,8 @@ public class DashFragment extends BaseFragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     workerThread = new WorkerThread(((MainActivity) getActivity()).getCommands(), getContext());
-                    DeviceManager.getInstance().addResponseHandler(new DeviceResponseHandler(workerThread));
                     workerThread.start();
+                    DeviceManager.getInstance().addResponseHandler(new DeviceResponseHandler(workerThread));
                 } else {
                     DeviceManager.getInstance().removeResponseHandler(new DeviceResponseHandler(workerThread));
                     DeviceManager.getInstance().clearQueue();

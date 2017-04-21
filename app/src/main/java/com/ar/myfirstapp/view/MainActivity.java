@@ -37,7 +37,10 @@ import com.ar.myfirstapp.view.fragments.FragmentFactory;
 import com.ar.myfirstapp.view.fragments.LogFragment;
 import com.ar.myfirstapp.view.fragments.OBDFragment;
 
+import org.apache.commons.collections4.queue.CircularFifoQueue;
+
 import java.util.HashMap;
+import java.util.Queue;
 import java.util.TreeMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -55,12 +58,8 @@ public class MainActivity extends AppCompatActivity implements DeviceResponseHan
     private TextView textViewTitle;
     private CircleIndicator circleIndicator;
 
-    public DeviceManager getDeviceManager() {
-        return deviceManager;
-    }
-
     private Map<Integer, Command>[] fragmentData = new TreeMap[FragmentFactory.getLastIndex()];
-    private List<Command> commandLog = new LinkedList<>();
+    private Queue<Command> commandLog = new CircularFifoQueue<>(Constants.LOG_HISTORY_SIZE);
 
     private BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {
         @Override
@@ -195,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements DeviceResponseHan
         return fragmentData;
     }
 
-    public List<Command> getCommandLog() {
+    public Queue<Command> getCommandLog() {
         return commandLog;
     }
 

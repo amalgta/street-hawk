@@ -25,10 +25,15 @@ public class DashItemAdapter extends RecyclerView.Adapter<DashItemAdapter.DashVi
     }
 
     public void add(Command commandCode) {
-        if (commandList.contains(commandCode)) return;
-        commandList.add(commandCode);
-        int position = commandList.indexOf(commandCode);
-        notifyItemInserted(position);
+        if (commandList.contains(commandCode)) {
+            commandList.set(commandList.indexOf(commandCode), commandCode);
+            int position = commandList.indexOf(commandCode);
+            notifyItemChanged(position);
+        } else {
+            commandList.add(commandCode);
+            int position = commandList.indexOf(commandCode);
+            notifyItemInserted(position);
+        }
     }
 
     public void remove(Command commandCode) {

@@ -41,6 +41,6 @@ public class OBDGenericView extends RelativeLayout implements OBDView {
     @Override
     public void display(Command command) {
         textViewLabel.setText(command.getName());
-        textViewValue.setText(command.getResponse());
+        textViewValue.setText(command.toString());
     }
 }
