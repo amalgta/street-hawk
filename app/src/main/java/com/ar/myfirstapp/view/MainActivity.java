@@ -58,9 +58,6 @@ public class MainActivity extends AppCompatActivity implements DeviceResponseHan
     private TextView textViewTitle;
     private CircleIndicator circleIndicator;
 
-    private Map<Integer, Command>[] fragmentData = new TreeMap[FragmentFactory.getLastIndex()];
-    private Queue<Command> commandLog = new CircularFifoQueue<>(Constants.LOG_HISTORY_SIZE);
-
     private BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -186,18 +183,6 @@ public class MainActivity extends AppCompatActivity implements DeviceResponseHan
         }
     }
 
-    public Map<Integer, Command> getCommands(int index) {
-        return fragmentData[index];
-    }
-
-    public Map<Integer, Command>[] getCommands() {
-        return fragmentData;
-    }
-
-    public Queue<Command> getCommandLog() {
-        return commandLog;
-    }
-
     @Override
     public void onStateChanged(int state) {
         buttonConnect.setVisibility(state == DeviceManager.BLUETOOTH_STATE.NONE ? View.VISIBLE : View.GONE);
@@ -229,17 +214,9 @@ public class MainActivity extends AppCompatActivity implements DeviceResponseHan
         }
         try {
             int index = (Integer.parseInt(command.getCommandId(), 16)) - 1;
-            if (fragmentData[index] == null) fragmentData[index] = new TreeMap<>();
-            try {
-                int pId = Integer.parseInt(command.getPid(), 16);
-                fragmentData[index].put(pId, command);
-                sendNotification(index, pId);
-            } catch (Exception e) {
-                Logger.e(TAG, e.toString());
-            }
+            int pId = Integer.parseInt(command.getPid(), 16);
+            sendNotification(index, pId);
         } catch (NumberFormatException ignored) {
-        } finally {
-            commandLog.add(command);
         }
     }
 

@@ -9,6 +9,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.ar.myfirstapp.obd2.Command;
+import com.ar.myfirstapp.obd2.CommandPool;
 import com.ar.myfirstapp.utils.Constants;
 import com.ar.myfirstapp.utils.Logger;
 
@@ -552,6 +553,8 @@ public class DeviceManager {
                         command.setResponseStatus(Command.ResponseStatus.NetworkError);
                         connectionLost();
                     } finally {
+                        CommandPool.getInstance().push(command);
+
                         commandParcel.setCommand(command);
                         for (Handler handler : responseHandlers) {
                             handler.obtainMessage(MESSAGE_TYPE.READ, -1, -1, commandParcel).sendToTarget();

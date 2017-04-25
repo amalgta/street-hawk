@@ -19,6 +19,7 @@ import com.ar.myfirstapp.R;
 import com.ar.myfirstapp.bt.DeviceManager;
 import com.ar.myfirstapp.bt.DeviceResponseHandler;
 import com.ar.myfirstapp.obd2.Command;
+import com.ar.myfirstapp.obd2.CommandPool;
 import com.ar.myfirstapp.utils.Constants;
 import com.ar.myfirstapp.utils.DashUtils;
 import com.ar.myfirstapp.utils.DataStorage;
@@ -60,11 +61,11 @@ public class DashFragment extends BaseFragment {
     };
 
     private void removeFromDash(int[] commandCode) {
-        dashItemAdapter.remove(((MainActivity) getActivity()).getCommands()[commandCode[0]].get(commandCode[1]));
+        dashItemAdapter.remove(CommandPool.getInstance().getCommands(commandCode[0]).get(commandCode[1]));
     }
 
     private void addToDash(int[] commandCode) {
-        dashItemAdapter.add((((MainActivity) getActivity()).getCommands()[commandCode[0]].get(commandCode[1])));
+        dashItemAdapter.add((CommandPool.getInstance().getCommands(commandCode[0]).get(commandCode[1])));
     }
 
     @Override
@@ -85,7 +86,7 @@ public class DashFragment extends BaseFragment {
     protected void loadData() {
         List<Command> commands = new LinkedList<>();
         for (int[] commandCode : DashUtils.getAll(new DataStorage(getContext()))) {
-            Map<Integer, Command>[] commandSet = ((MainActivity) getActivity()).getCommands();
+            Map<Integer, Command>[] commandSet = CommandPool.getInstance().getCommands();
             if (commandSet[commandCode[0]] == null) continue;
             commands.add((commandSet[commandCode[0]].get(commandCode[1])));
         }
@@ -97,41 +98,8 @@ public class DashFragment extends BaseFragment {
     protected void updateData(int[] commandCode) {
         for (int[] thisCommandCode : DashUtils.getAll(new DataStorage(getContext()))) {
             if (thisCommandCode[0] == commandCode[0] && thisCommandCode[1] == commandCode[1])
-                dashItemAdapter.add(((MainActivity) getActivity()).getCommands(commandCode[0]).get(commandCode[1]));
+                dashItemAdapter.add(CommandPool.getInstance().getCommands(commandCode[0]).get(commandCode[1]));
         }
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        deviceResponseHandler = new DeviceResponseHandler(new DeviceResponseHandler.DeviceResponseListener() {
-            @Override
-            public void onStateChanged(int state) {
-                switchListen.setVisibility((state == DeviceManager.BLUETOOTH_STATE.CONNECTED) ? View.VISIBLE : View.GONE);
-                /*TODO Additionally stop the repeated sending process here*/
-            }
-
-            @Override
-            public void onConnected(String connectedDeviceName) {
-
-            }
-
-            @Override
-            public void onWriteCommand(Command command) {
-
-            }
-
-            @Override
-            public void onReadCommand(Command command) {
-
-            }
-
-            @Override
-            public void onNotification(String notificationText) {
-
-            }
-        });
-        DeviceManager.getInstance().addResponseHandler(deviceResponseHandler);
     }
 
     @Nullable
@@ -151,11 +119,9 @@ public class DashFragment extends BaseFragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    workerThread = new WorkerThread(((MainActivity) getActivity()).getCommands(), getContext());
+                    workerThread = new WorkerThread(getContext());
                     workerThread.start();
-                    DeviceManager.getInstance().addResponseHandler(new DeviceResponseHandler(workerThread));
                 } else {
-                    DeviceManager.getInstance().removeResponseHandler(new DeviceResponseHandler(workerThread));
                     DeviceManager.getInstance().clearQueue();
                     workerThread.cancel();
                 }
@@ -169,14 +135,12 @@ public class DashFragment extends BaseFragment {
         });
     }
 
-    private class WorkerThread extends Thread implements DeviceResponseHandler.DeviceResponseListener {
+    private class WorkerThread extends Thread {
         private static final String TAG = "WorkerThread";
-        TreeMap<Integer, Command>[] commands;
         Context context;
         boolean isRunning = true;
 
-        WorkerThread(Map<Integer, Command>[] commands, Context context) {
-            this.commands = (TreeMap<Integer, Command>[]) commands;
+        WorkerThread(Context context) {
             this.context = context;
         }
 
@@ -186,48 +150,13 @@ public class DashFragment extends BaseFragment {
                 if ((DeviceManager.getInstance().getCurrentState() == DeviceManager.BLUETOOTH_STATE.CONNECTED)) {
                     List<int[]> dashBoardItems = DashUtils.getAll(new DataStorage(context));
                     for (int[] thisCommandCode : dashBoardItems) {
-                        Map<Integer, Command> commandHashMap = commands[thisCommandCode[0]];
+                        Map<Integer, Command> commandHashMap = CommandPool.getInstance().getCommands(thisCommandCode[0]);
                         if (commandHashMap == null) continue;
                         if (commandHashMap.containsKey(thisCommandCode[1]))
                             DeviceManager.getInstance().send(commandHashMap.get(thisCommandCode[1]));
                     }
                 }
             }
-        }
-
-        @Override
-        public void onStateChanged(int state) {
-
-        }
-
-        @Override
-        public void onConnected(String connectedDeviceName) {
-
-        }
-
-        @Override
-        public void onWriteCommand(Command command) {
-
-        }
-
-        @Override
-        public void onReadCommand(Command command) {
-            try {
-                int index = (Integer.parseInt(command.getCommandId(), 16)) - 1;
-                if (commands[index] == null) commands[index] = new TreeMap<>();
-                try {
-                    int pId = Integer.parseInt(command.getPid(), 16);
-                    commands[index].put(pId, command);
-                } catch (Exception e) {
-                    Logger.e(TAG, e.toString());
-                }
-            } catch (NumberFormatException ignored) {
-            }
-        }
-
-        @Override
-        public void onNotification(String notificationText) {
-
         }
 
         void cancel() {

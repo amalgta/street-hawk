@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.ar.myfirstapp.R;
 import com.ar.myfirstapp.bt.DeviceManager;
 import com.ar.myfirstapp.obd2.Command;
+import com.ar.myfirstapp.obd2.CommandPool;
 import com.ar.myfirstapp.obd2.parser.Parser;
 import com.ar.myfirstapp.obd2.saej1979.ModeFactory;
 import com.ar.myfirstapp.view.MainActivity;
@@ -48,7 +49,7 @@ public class LogFragment extends BaseFragment {
     @Override
     protected void loadData() {
         textViewLog.setText("");
-        Queue<Command> commands = ((MainActivity) getActivity()).getCommandLog();
+        Queue<Command> commands = CommandPool.getInstance().getLog();
         for (Command command : commands) {
             textViewLog.append(command.toString());
         }
@@ -61,7 +62,7 @@ public class LogFragment extends BaseFragment {
         textViewLog.append(((CircularFifoQueue) commands).get(commands.size() - 1).toString());
         */
         textViewLog.setText("");
-        Queue<Command> commands = ((MainActivity) getActivity()).getCommandLog();
+        Queue<Command> commands = CommandPool.getInstance().getLog();
         for (Command command : commands) {
             textViewLog.append(command.toString());
         }

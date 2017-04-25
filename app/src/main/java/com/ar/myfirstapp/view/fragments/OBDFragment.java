@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import com.ar.myfirstapp.R;
 import com.ar.myfirstapp.obd2.Command;
+import com.ar.myfirstapp.obd2.CommandPool;
 import com.ar.myfirstapp.view.MainActivity;
 import com.ar.myfirstapp.view.adapter.OBDItemAdapter;
 
@@ -35,7 +36,7 @@ public class OBDFragment extends BaseFragment {
     @Override
     protected void updateData(int[] commandCode) {
         if (commandCode[0] != position) return;
-        obdItemAdapter.add(((MainActivity) getActivity()).getCommands(commandCode[0]).get(commandCode[1]));
+        obdItemAdapter.add(CommandPool.getInstance().getCommands(commandCode[0]).get(commandCode[1]));
     }
 
     @Override
@@ -46,7 +47,7 @@ public class OBDFragment extends BaseFragment {
 
     @Override
     protected void loadData() {
-        Map<Integer, Command> commands = ((MainActivity) getActivity()).getCommands(position);
+        Map<Integer, Command> commands = CommandPool.getInstance().getCommands(position);
         obdItemAdapter = new OBDItemAdapter(commands, getContext());
         recyclerView.setAdapter(obdItemAdapter);
     }

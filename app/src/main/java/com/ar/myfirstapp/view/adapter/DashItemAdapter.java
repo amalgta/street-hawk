@@ -49,6 +49,7 @@ public class DashItemAdapter extends RecyclerView.Adapter<DashItemAdapter.DashVi
         FrameLayout frameLayout = new FrameLayout(parent.getContext());
         frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         switch (viewType) {
+            case DashUtils.WIDGET_TYPE.TEXT:
             default:
                 viewHolder = new DashViewHolder(frameLayout);
                 break;

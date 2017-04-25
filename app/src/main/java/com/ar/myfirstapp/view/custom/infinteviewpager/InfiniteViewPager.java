@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InfiniteViewPager extends ViewPager {
-    private static final boolean DEFAULT_BOUNDARY_CASHING = false;
+    private static final boolean DEFAULT_BOUNDARY_CASHING = true;
     private static final boolean DEFAULT_BOUNDARY_LOOPING = true;
 
     private InfiniteViewPagerAdapterWrapper mAdapter;
