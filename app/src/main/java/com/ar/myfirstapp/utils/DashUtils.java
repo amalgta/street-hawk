@@ -67,7 +67,7 @@ public class DashUtils {
         sendNotification(context, Constants.TAG_DASH_ADD, commandReference[0], commandReference[1]);
     }
 
-    private static void sendNotification(Context context, String mode, int index, int pId) {
+    public static void sendNotification(Context context, String mode, int index, int pId) {
         Intent intent = new Intent(mode);
         intent.putExtra(Constants.TAG_NOTIFICATION_COMMAND_INDEX, index);
         intent.putExtra(Constants.TAG_NOTIFICATION_COMMAND_PID, pId);

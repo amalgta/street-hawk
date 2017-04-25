@@ -27,6 +27,7 @@ import com.ar.myfirstapp.obd2.Command;
 import com.ar.myfirstapp.obd2.at.AtCommands;
 import com.ar.myfirstapp.obd2.saej1979.ModeFactory;
 import com.ar.myfirstapp.utils.Constants;
+import com.ar.myfirstapp.utils.DashUtils;
 import com.ar.myfirstapp.utils.Logger;
 import com.ar.myfirstapp.utils.Utils;
 import com.ar.myfirstapp.view.custom.infinteviewpager.CircleIndicator;
@@ -215,22 +216,9 @@ public class MainActivity extends AppCompatActivity implements DeviceResponseHan
         try {
             int index = (Integer.parseInt(command.getCommandId(), 16)) - 1;
             int pId = Integer.parseInt(command.getPid(), 16);
-            sendNotification(index, pId);
+            DashUtils.sendNotification(this, Constants.TAG_NOTIFICATION_REFRESH, index, pId);
         } catch (NumberFormatException ignored) {
         }
-    }
-
-    /**
-     * Sends notification to all fragments that a new command request has received
-     *
-     * @param index Command mode
-     * @param pId   pid of command
-     */
-    private void sendNotification(int index, int pId) {
-        Intent intent = new Intent(Constants.TAG_NOTIFICATION_REFRESH);
-        intent.putExtra(Constants.TAG_NOTIFICATION_COMMAND_INDEX, index);
-        intent.putExtra(Constants.TAG_NOTIFICATION_COMMAND_PID, pId);
-        sendBroadcast(intent);
     }
 
     @Override

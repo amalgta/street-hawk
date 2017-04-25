@@ -5,7 +5,6 @@ package com.ar.myfirstapp.utils;
  */
 
 public class Constants {
-    public static final int LOG_HISTORY_SIZE = 10;
 
     public static final String TAG_DEVICE_NAME = "device_name";
     public static final String TAG_TOAST = "toast";

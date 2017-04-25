@@ -15,11 +15,12 @@ import java.util.TreeMap;
  */
 
 public class CommandPool {
+    private static final int LOG_HISTORY_SIZE = 10;
 
     private static final String TAG = "CommandPool";
 
     private Map<Integer, Command>[] commandPool = new TreeMap[FragmentFactory.getLastIndex()];
-    private Queue<Command> poolLog = new CircularFifoQueue<>(Constants.LOG_HISTORY_SIZE);
+    private Queue<Command> poolLog = new CircularFifoQueue<>(LOG_HISTORY_SIZE);
 
     public void push(Command command) {
         try {
